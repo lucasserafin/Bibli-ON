@@ -1,0 +1,152 @@
+﻿@{
+    ViewData["Title"] = "Comics";
+    Layout = "_Layout";
+}
+
+<button class="btn btn-primary" onclick="nuevoComic()">Nuevo libro</button>
+<br>
+<br>
+<div class="row">
+    <table width="100%" 
+            class="table" 
+            id="grid_Comics" 
+            style="table-layout: fixed; word-break: break-word !important;">
+        <thead class="thead-default">
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Nombre de libro</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function () {
+        var columns = [{
+            "data": "tituloLibro",
+            "name": "tituloLibro",
+            "searchable": true,
+            "visible": true,
+            "orderable": true,
+            defaultContent: ""
+        }, {
+            "data": "autorLibro",
+            "name": "autorLibro",
+            "searchable": true,
+            "visible": true,
+            "orderable": true,
+            defaultContent: ""
+        }, {
+            "data": "nombreComic",
+            "name": "nombreComic",
+            "searchable": true,
+            "visible": true,
+            "orderable": true,
+            defaultContent: ""
+        }, {
+            data: function (row, type, set) {
+                var s = '';
+                
+                s +=   
+                    `<button 
+                        type='button' 
+                        class='btn btn-sm btn-secondary' 
+                        onclick='editarComic(${row.id})'
+                        title='Editar'
+                        style='margin-left:2px;background-color:green;'>
+                            <svg class="c-icon glyphicon" style='width:12px;height:12px;margin-top:-3px;'>
+                                <use xlink: 
+                                    href="${urlContent}img/icons/svg/free.svg#cil-pencil">
+                                </use>
+                            </svg>
+                    </button>`;
+                
+                s +=   
+                    `<button 
+                        type='button' 
+                        class='btn btn-sm btn-secondary' 
+                        onclick='verComic(${row.id})'
+                        title='Ver'
+                        style='margin-left:2px;background-color:green;'>
+                            <svg class="c-icon glyphicon" style='width:12px;height:12px;margin-top:-3px;'>
+                                <use xlink: 
+                                    href="${urlContent}img/icons/svg/free.svg#cil-zoom-in">
+                                </use>
+                            </svg>
+                    </button>`;
+                
+                s +=   
+                    `<button 
+                        type='button' 
+                        class='btn btn-sm btn-secondary' 
+                        onclick='eliminarComic(${row.id}, "${row.nombreComic}")'
+                        title='Eliminar'
+                        style='margin-left:2px;background-color:red;'>
+                            <svg class="c-icon glyphicon" style='width:12px;height:12px;margin-top:-3px;'>
+                                <use xlink: 
+                                    href="${urlContent}img/icons/svg/free.svg#cil-trash">
+                                </use>
+                            </svg>
+                    </button>`;
+
+                return s;
+            },
+            "searchable": false,
+            "orderable": false,
+            "visible": true,
+            defaultContent: ""
+        }];
+        
+        createGrid(
+            'grid_Comics', 
+            'Comic/Listar', 
+            'Comics', 
+            columns, 
+            null, 
+            true);
+    });
+
+    function nuevoComic()
+    {
+        window.location = urlContent + "Comic/Nuevo";
+    }
+
+    function editarComic(idComic)
+    {
+        window.location = urlContent + "Comic/Editar?idComic=" + idComic;
+    }
+
+    function verComic(idComic)
+    {
+        window.location = urlContent + "Comic/Ver?idComic=" + idComic;
+    }
+
+    function eliminarComic(idComic, nombreComic)
+    {
+        msjPregunta("Pregunta", "¿Está seguro que desea el libro " + nombreComic + "?", function()
+        {
+            let data = {
+                id: idComic
+            };
+
+            ajax(
+                "post", 
+                "Comic/Eliminar", 
+                data, 
+                "Eliminando...", 
+                "Espere por favor...", 
+                function(response){
+                    msjSuccess("Éxito", "El libro se eliminó correctamente", function(){
+                        reloadGrid("grid_Comics", false);
+                    });
+                }, null);
+
+        }, function() {
+
+        });
+    }
+</script>

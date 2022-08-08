@@ -1,0 +1,173 @@
+﻿@model mvc_project.Models.Usuario.UsuarioViewModel
+
+@{
+    if(Model.accion == mvc_project.Models.Common.CodigosAccion.Nuevo)
+    {
+        ViewData["Title"] = "Nuevo usuario";
+    }
+    else if(Model.accion == mvc_project.Models.Common.CodigosAccion.Editar)
+    {
+        ViewData["Title"] = "Editar usuario";
+    }
+    else if(Model.accion == mvc_project.Models.Common.CodigosAccion.Ver)
+    {
+        ViewData["Title"] = "Ver usuario";
+    }
+
+    Layout = "_Layout";
+}
+
+<input type="hidden" id="txt_id_usuario" value="@Model.id">
+
+<div class="row justify-content-around" style="text-align: center;">
+    <div class=" col-xs-12 col-sm-12 col-md-6 col-lg-6">
+        <h2>@Html.Raw(ViewData["Title"])</h2>
+    </div>
+</div>
+
+<div class="row justify-content-around">
+    <div class=" col-xs-12 col-sm-12 col-md-6 col-lg-6">
+        <div class="row pb-3">
+            <div class="col-md-12 pl-0 pr-0">
+                <input  class="form-control"
+                        id="txt_nombre_persona"
+                        placeholder="Nombre"
+                        type="text"
+                        value="@Model.tituloLibro"
+                        @(Model.accion == mvc_project.Models.Common.CodigosAccion.Ver ? "disabled" : "") />
+            </div>
+        </div>
+        <div class="row pb-3">
+            <div class="col-md-12 pl-0 pr-0">
+                <input  class="form-control"
+                        id="txt_apellido_persona"
+                        placeholder="Apellido"
+                        type="text"
+                        value="@Model.autorLibro"
+                        @(Model.accion == mvc_project.Models.Common.CodigosAccion.Ver ? "disabled" : "") />
+            </div>
+        </div>
+        <div class="row pb-3">
+            <div class="col-md-12 pl-0 pr-0">
+                <input  class="form-control"
+                        id="txt_nombre_usuario"
+                        placeholder="Nombre de usuario"
+                        type="text"
+                        value="@Model.nombreUsuario"
+                        @(Model.accion == mvc_project.Models.Common.CodigosAccion.Ver ? "disabled" : "") />
+            </div>
+        </div>
+
+        @if(Model.accion != mvc_project.Models.Common.CodigosAccion.Ver)
+        {
+            <div class="row pb-3">
+                <div class="col-md-12 pl-0 pr-0">
+                    <input  class="form-control"
+                            id="txt_password"
+                            placeholder="Contraseña"
+                            type="password"
+                            value="" />
+                </div>
+            </div>
+            <div class="row pb-3">
+                <div class="col-md-12 pl-0 pr-0">
+                    <input  class="form-control"
+                            id="txt_re_password"
+                            placeholder="Confirme contraseña"
+                            type="password"
+                            value="" />
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="row justify-content-around" style="text-align: center;">
+    <div class=" col-xs-12 col-sm-12 col-md-6 col-lg-6">
+        @if(Model.accion != mvc_project.Models.Common.CodigosAccion.Ver)
+        {
+            <button class="btn btn-primary" onclick="guardarUsuario()">Guardar</button>
+        }
+        <button class="btn btn-secondary" onclick="cancelar()">Cancelar</button>
+    </div>
+</div>
+
+<script>
+    function cancelar()
+    {
+        msjPregunta("Pregunta", "¿Está seguro que desea cancelar?", function()
+        {
+            window.location = urlContent + "Usuario/Index";
+        }, function() {
+
+        });
+    }
+
+    function guardarUsuario()
+    {
+        let idUsuario = $("#txt_id_usuario").val();
+        let tituloLibro = $("#txt_nombre_persona").val();
+        let autorLibro = $("#txt_apellido_persona").val();
+        let nombreUsuario = $("#txt_nombre_usuario").val();
+        let password = $("#txt_password").val();
+        let rePassword = $("#txt_re_password").val();
+
+        let listadoErrores = "";
+
+        if(tituloLibro == null || tituloLibro == "")
+        {
+            listadoErrores += "- El nombre de la persona es obligatorio<br>";
+        }
+
+        if(autorLibro == null || autorLibro == "")
+        {
+            listadoErrores += "- El apellido de la persona es obligatorio<br>";
+        }
+
+        if(nombreUsuario == null || nombreUsuario == "")
+        {
+            listadoErrores += "- El nombre de usuario es obligatorio<br>";
+        }
+
+        if(idUsuario == 0 && (password == null || password == ""))
+        {
+            listadoErrores += "- La contraseña es obligatoria<br>";
+        }
+
+        if(idUsuario == 0 && (rePassword == null || rePassword == ""))
+        {
+            listadoErrores += "- Debe confirmar la contraseña<br>";
+        }
+
+        if(password != rePassword)
+        {
+            listadoErrores += "- Las contraseñas no coinciden<br>";
+        }
+
+        if(listadoErrores != "")
+        {
+            msjError("Error", listadoErrores);
+            return;
+        }
+
+        let data = {
+            id: idUsuario,
+            tituloLibro: tituloLibro,
+            autorLibro: autorLibro,
+            nombreUsuario: nombreUsuario,
+            password: password
+        };
+
+        ajax(
+            "post", 
+            "Usuario/Guardar", 
+            data, 
+            "Guardando...", 
+            "Espere por favor...", 
+            function(response){
+                msjSuccess("Éxito", "El usuario se guardó correctamente", function(){
+                    window.location = urlContent + "Usuario/Index";
+                });
+            }, null);
+    }
+</script>
